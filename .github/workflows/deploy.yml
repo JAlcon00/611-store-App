@@ -25,7 +25,7 @@ jobs:
         run: docker build -t jalcon00/611-store-app:${{ github.sha }} .
  
       - name: Tag Latest
-        run: docker tag jalcon00/611-store-app${{ github.sha }} jalcon00/store-app:latest
+        run: docker tag jalcon00/611-store-app:${{ github.sha }} jalcon00/store-app:latest
  
       - name: Push Docker Image
         run: |
