@@ -1,0 +1,154 @@
+<div class="orders-container">
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <span nz-icon nzType="profile" nzTheme="outline"></span>
+        Gestión de Órdenes
+      </h1>
+      <p class="page-description">Administra y consulta todas las órdenes de compra</p>
+    </div>
+    <div class="header-actions">
+      <button nz-button nzType="primary" (click)="loadOrders()">
+        <span nz-icon nzType="reload" nzTheme="outline"></span>
+        Actualizar
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-content">
+        <div class="stat-number">{{ orders.length }}</div>
+        <div class="stat-label">Total Órdenes</div>
+      </div>
+      <span nz-icon nzType="shopping-cart" class="stat-icon"></span>
+    </div>
+    <div class="stat-card">
+      <div class="stat-content">
+        <div class="stat-number">{{ getPendingOrdersCount() }}</div>
+        <div class="stat-label">Pendientes</div>
+      </div>
+      <span nz-icon nzType="clock-circle" class="stat-icon pending"></span>
+    </div>
+    <div class="stat-card">
+      <div class="stat-content">
+        <div class="stat-number">{{ getCompletedOrdersCount() }}</div>
+        <div class="stat-label">Completadas</div>
+      </div>
+      <span nz-icon nzType="check-circle" class="stat-icon completed"></span>
+    </div>
+    <div class="stat-card">
+      <div class="stat-content">
+        <div class="stat-number">{{ getTotalRevenue() | currency:'USD':'symbol':'1.0-0' }}</div>
+        <div class="stat-label">Ingresos Totales</div>
+      </div>
+      <span nz-icon nzType="dollar-circle" class="stat-icon revenue"></span>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <nz-input-group nzPrefixIcon="search" class="search-input">
+      <input type="text" nz-input placeholder="Buscar por ID, cliente o estado..." 
+             [(ngModel)]="searchTerm" (input)="filterOrders()">
+    </nz-input-group>
+    <nz-select nzPlaceHolder="Filtrar por estado" 
+               [(ngModel)]="statusFilter" 
+               (ngModelChange)="filterOrders()"
+               class="status-filter">
+      <nz-option nzValue="" nzLabel="Todos los estados"></nz-option>
+      <nz-option nzValue="pending" nzLabel="Pendiente"></nz-option>
+      <nz-option nzValue="processing" nzLabel="Procesando"></nz-option>
+      <nz-option nzValue="completed" nzLabel="Completado"></nz-option>
+      <nz-option nzValue="cancelled" nzLabel="Cancelado"></nz-option>
+    </nz-select>
+  </div>
+
+  <!-- Orders Table -->
+  <div class="table-container" *ngIf="filteredOrders.length > 0; else noOrdersTemplate">
+    <nz-table #ordersTable 
+              [nzData]="filteredOrders" 
+              [nzFrontPagination]="true"
+              [nzPageSize]="10"
+              [nzShowSizeChanger]="true"
+              [nzPageSizeOptions]="[10, 20, 50]"
+              nzTableLayout="fixed">
+      <thead>
+        <tr>
+          <th nzWidth="80px">ID</th>
+          <th nzWidth="200px">Cliente</th>
+          
+          <th nzWidth="120px">Total</th>
+          <th nzWidth="150px">Fecha</th>
+          <th nzWidth="120px">Estado</th>
+          <th nzWidth="100px">Productos</th>
+          <th nzWidth="120px">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let order of filteredOrders">
+          <td>
+            <span class="order-id">#{{ order.id }}</span>
+          </td>
+          <td>
+            <div class="customer-info">
+              <div class="customer-name">Usuario ID: {{ order.userId }}</div>
+              <div class="customer-email">cliente{{ order.userId }}@ejemplo.com</div>
+            </div>
+          </td>
+          <td>
+            <span class="order-total">{{ order.total | currency:'USD':'symbol':'1.2-2' }}</span>
+          </td>
+          <td>
+            <div class="date-info">
+              <div class="order-date">{{ order.createdAt | date:'shortDate' }}</div>
+              <div class="order-time">{{ order.createdAt | date:'shortTime' }}</div>
+            </div>
+          </td>
+          <td>
+            <nz-tag [nzColor]="getStatusColor(getSimulatedStatus(order))" class="status-tag">
+              <span nz-icon [nzType]="getStatusIcon(getSimulatedStatus(order))"></span>
+              {{ getStatusLabel(getSimulatedStatus(order)) }}
+            </nz-tag>
+          </td>
+          <td>
+            <span class="products-count">{{ getSimulatedProductCount(order) }} items</span>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button nz-button nzType="link" nzSize="small" (click)="viewOrderDetails(order)" nz-tooltip="Ver detalles">
+                <span nz-icon nzType="eye" nzTheme="outline"></span>
+              </button>
+              <button nz-button nzType="link" nzSize="small" (click)="editOrder(order)" nz-tooltip="Editar">
+                <span nz-icon nzType="edit" nzTheme="outline"></span>
+              </button>
+              <button nz-button nzType="link" nzSize="small" (click)="duplicateOrder(order)" nz-tooltip="Duplicar">
+                <span nz-icon nzType="copy" nzTheme="outline"></span>
+              </button>
+              <button nz-button nzType="link" nzSize="small" (click)="cancelOrder(order)" nz-tooltip="Cancelar" nzDanger>
+                <span nz-icon nzType="delete" nzTheme="outline"></span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </div>
+
+  <!-- No Orders Template -->
+  <ng-template #noOrdersTemplate>
+    <nz-empty 
+      nzNotFoundImage="simple" 
+      nzNotFoundContent="No se encontraron órdenes"
+      class="empty-state">
+      <div nz-empty-footer>
+        <button nz-button nzType="primary" (click)="loadOrders()">
+          <span nz-icon nzType="reload" nzTheme="outline"></span>
+          Recargar Órdenes
+        </button>
+      </div>
+    </nz-empty>
+  </ng-template>
+</div>

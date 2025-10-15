@@ -40,3 +40,27 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Environment files
+.env
+.env.*.local
+.env.local
+.env.*.development
+.env.development
+.env.*.production
+.env.production
+.env.*.test
+.env.test
+.env.*.staging
+.env.staging
+secret.env.ts
+secret.*.ts
+secret.*.development.ts
+secret.development.ts
+secret.*.production.ts
+secret.production.ts
+secret.*.test.ts
+secret.test.ts
+secret.*.staging.ts
+secret.staging.ts   
+

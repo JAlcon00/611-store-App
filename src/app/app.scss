@@ -1,0 +1,11 @@
+/* Estilos específicos del app component */
+app-map{
+    
+}
+
+.layout {
+    display: flex;
+    height: 100vh;
+    width: 100vw; /* Asegura que ocupe toda la altura de la ventana */
+    overflow: hidden; /* Evita barras de desplazamiento no deseadas */
+}
